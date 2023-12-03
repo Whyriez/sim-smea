@@ -127,24 +127,20 @@
                                             class="inline-flex items-center px-2 py-2 text-sm font-medium text-center text-white rounded-md bg-yellow-700 hover:bg-yellow-800 focus:ring-4 focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
-                                        <a href="{{ url('lembar-disposisi/' . $m->id) }}" target="__BLANK"
+                                        <button type="button" data-modal-toggle="lihatBerkasDisposisi{{ $m->id }}"
+                                            class="inline-flex items-center px-2 py-1 text-sm font-medium text-center text-white rounded-md bg-yellow-700 hover:bg-yellow-800 focus:ring-4 focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
+                                            <i class="fa-solid fa-eye mr-2"></i>
+                                            Lihat Surat Disposisi
+                                        </button>
+                                        {{-- <a href="{{ url('lembar-disposisi/' . $m->id) }}" target="__BLANK"
                                             class="inline-flex items-center px-2 py-1 text-sm font-medium text-center text-white rounded-md bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:ring-pink-300 dark:bg-pink-600 dark:hover:bg-pink-700 dark:focus:ring-pink-800">
                                             <i class="fa-solid fa-eye mr-2"></i>
                                             Lihat Surat Disposisi
+                                        </a> --}}
+                                        <a href="{{ url('delete-surat-masuk/' . $m->id) }}"
+                                            class="inline-flex items-center px-2 py-1 text-sm font-medium text-center text-white rounded-md bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
+                                            Hapus
                                         </a>
-                                        {{-- <button type="button" data-modal-toggle="delete-user-modal-{{ $m->id }}"
-                                            class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-900">
-
-
-                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd"
-                                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            Delete
-
-                                        </button> --}}
                                     </td>
                                 </tr>
                             @endforeach
@@ -209,7 +205,7 @@
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tanggal</label>
                                 <input type="date" name="tglSuratMasuk" id="tglSuratMasuk"
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    required>
+                                    min="{{ now()->format('Y-m-d') }}" value="{{ now()->format('Y-m-d') }}" required>
                             </div>
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="nomorSuratMasuk"
@@ -269,21 +265,20 @@
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Surat Dari" required>
                             </div>
-                            <div class="col-span-6 sm:col-span-3">
+                            {{-- <div class="col-span-6 sm:col-span-3">
                                 <label for="tgl_surat"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tgl Surat</label>
                                 <input type="date" name="tgl_surat" id="tgl_surat"
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     required>
-                            </div>
+                            </div> --}}
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="first-name"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nomor
                                     Surat</label>
                                 <input type="text" name="nomor_surat" id="first-name"
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Nomor
-                                    Surat" required>
+                                    placeholder="Nomor Surat" required>
                             </div>
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="tgl_diterima"
@@ -319,14 +314,103 @@
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Hal" required>
                             </div>
-                            <div class="col-span-6 sm:col-span-3">
+
+                            <div class="col-span-6 sm:col-span-6">
                                 <label for="catatan"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Catatan</label>
-                                <input type="text" name="catatan" id="catatan"
+                                <textarea name="catatan"
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Catatan" required>
+                                    id="catatan" cols="10" rows="3" required></textarea>
+                            </div>
+
+
+                            <div class="col-span-6 sm:col-span-3">
+                                <label for="category-create"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Diteruskan Kepada
+                                    Sdr</label>
+                                <div class="flex items-center mb-4">
+                                    <input id="inpkasubag" name="kasubag" type="checkbox" value="1"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="inpkasubag"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Kasubag
+                                        TU</label>
+                                </div>
+                                <input type="text" name="valkasubag" id="kasubag-input"
+                                    class="shadow-sm hidden mb-3 bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Kasubag TU" value="">
+                                <div class="flex items-center mb-4">
+                                    <input id="inpwaksek" name="waksek" type="checkbox" value="2"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="inpwaksek"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Waksek</label>
+                                </div>
+                                <input type="text" name="valwaksek" id="waksek-input"
+                                    class="shadow-sm hidden mb-3 bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Waksek" value="">
+                                <div class="flex items-center mb-4">
+                                    <input id="inpkaprodi" name="kapordi" type="checkbox" value="3"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="inpkaprodi"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Ka
+                                        Prog.Keahl</label>
+                                </div>
+                                <input type="text" name="valkapordi" id="kaprodi-input"
+                                    class="shadow-sm hidden mb-3 bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Ka Prog.Keahl" value="">
+                                <div class="flex items-center mb-4">
+                                    <input id="inpkoordinator" name="koordinator" type="checkbox" value="4"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="inpkoordinator"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Koordinator</label>
+                                </div>
+                                <input type="text" name="valkoordinator" id="koordinator-input"
+                                    class="shadow-sm hidden bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Koordinator" value="">
                             </div>
                             <div class="col-span-6 sm:col-span-3">
+                                <label for="category-create"
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Dengan Hormat
+                                    Harap</label>
+
+                                <div class="flex items-center mb-4">
+                                    <input id="inpsaran" name="tanggapan" type="checkbox" value="1"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        onchange="updateValtanggapan(this)">
+                                    <label for="inpsaran"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Tanggapan Dan
+                                        Saran</label>
+                                    <input type="hidden" id="valtanggapan" name="valtanggapan" value="">
+                                </div>
+                                <div class="flex items-center mb-4">
+                                    <input id="inplanjut" name="prosesLebih" type="checkbox" value="2"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        onchange="updateValProsesLebih(this)">
+                                    <label for="inplanjut"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Proses Lebih
+                                        Lanjut</label>
+                                    <input type="hidden" id="valprosesLebih" name="valprosesLebih" value="">
+                                </div>
+                                <div class="flex items-center mb-4">
+                                    <input id="inpkonfirmasikan" name="koordinasi" type="checkbox" value="3"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        onchange="updateValKoordinasi(this)">
+                                    <label for="inpkonfirmasikan"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Koordinasi/Konfirmasikan</label>
+                                    <input type="hidden" id="valkoordinasi" name="valkoordinasi" value="">
+                                </div>
+                                <div class="flex items-center mb-4">
+                                    <input id="inplainnya" name="lainnya" type="checkbox" value="4"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="inplainnya"
+                                        class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Lainnya</label>
+                                </div>
+                                <input type="text" name="vallainnya" id="lainnya-input"
+                                    class="shadow-sm hidden bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                    placeholder="Lainnya">
+                            </div>
+
+
+                            {{-- <div class="col-span-6 sm:col-span-3">
                                 <label for="category-create"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Diteruskan Kepada
                                     Sdr</label>
@@ -339,7 +423,7 @@
                                 </div>
                                 <input type="text" name="dtrskepada_values[1]" id="kasubag-input"
                                     class="shadow-sm hidden mb-3 bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Kasubag TU">
+                                    placeholder="Kasubag TU" value="Kasubag TU">
                                 <div class="flex items-center mb-4">
                                     <input id="inpwaksek" name="dtrskepada[]" type="checkbox" value="2"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -348,7 +432,7 @@
                                 </div>
                                 <input type="text" name="dtrskepada_values[2]" id="waksek-input"
                                     class="shadow-sm hidden mb-3 bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Waksek">
+                                    placeholder="Waksek" value="Waksek">
                                 <div class="flex items-center mb-4">
                                     <input id="inpkaprodi" name="dtrskepada[]" type="checkbox" value="3"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -358,7 +442,7 @@
                                 </div>
                                 <input type="text" name="dtrskepada_values[3]" id="kaprodi-input"
                                     class="shadow-sm hidden mb-3 bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Ka Prog.Keahl">
+                                    placeholder="Ka Prog.Keahl" value="Ka Prog.Keahl">
                                 <div class="flex items-center mb-4">
                                     <input id="inpkoordinator" name="dtrskepada[]" type="checkbox" value="4"
                                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
@@ -367,7 +451,7 @@
                                 </div>
                                 <input type="text" name="dtrskepada_values[4]" id="koordinator-input"
                                     class="shadow-sm hidden bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Koordinator">
+                                    placeholder="Koordinator" value="Koordinator">
                             </div>
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="category-create"
@@ -406,7 +490,7 @@
                                 <input type="text" name="dng_lainnya[4]" id="lainnya-input"
                                     class="shadow-sm hidden bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     placeholder="Lainnya">
-                            </div>
+                            </div> --}}
 
                         </div>
                 </div>
@@ -460,6 +544,45 @@
         </div>
     @endforeach
 
+    @foreach ($suratMasuk as $m)
+        <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-1 md:inset-0 h-modal sm:h-full"
+            id="lihatBerkasDisposisi{{ $m->id }}">
+            <div class="relative w-full h-full max-w-2xl px-4 md:h-full">
+                <!-- Modal content -->
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
+                    <!-- Modal header -->
+                    <div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
+                        <h3 class="text-xl font-semibold dark:text-white">
+                            Berkas
+                        </h3>
+
+                        <button type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            data-modal-toggle="lihatBerkasDisposisi{{ $m->id }}">
+                            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="sr-only">Close menu</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <div class="p-6 space-y-6">
+                        <h4 class="text-2xl font-bold dark:text-white">Berkas Surat Masuk</h4>
+                        <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
+
+                        <iframe src="{{ asset('storage/' . $m->berkas_disposisi) }}" style="width: 100%" height="500"
+                            id="myframe"></iframe>
+
+                        <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700">
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var lainnyaCheckbox = document.getElementById('inplainnya');
@@ -483,6 +606,7 @@
                     lainnyaInput.classList.remove('hidden');
                 } else {
                     lainnyaInput.classList.add('hidden');
+                    lainnyaInput.value = '';
                 }
             });
 
@@ -491,6 +615,7 @@
                     kasubagInput.classList.remove('hidden');
                 } else {
                     kasubagInput.classList.add('hidden');
+                    kasubagInput.value = '';
                 }
             });
             waksekCheckbox.addEventListener('click', function() {
@@ -498,6 +623,7 @@
                     waksekInput.classList.remove('hidden');
                 } else {
                     waksekInput.classList.add('hidden');
+                    waksekInput.value = '';
                 }
             });
             kaprodiCheckbox.addEventListener('click', function() {
@@ -505,6 +631,7 @@
                     kaprodiInput.classList.remove('hidden');
                 } else {
                     kaprodiInput.classList.add('hidden');
+                    kaprodiInput.value = '';
                 }
             });
             kooridnatorCheckbox.addEventListener('click', function() {
@@ -512,9 +639,41 @@
                     kooridnatorInput.classList.remove('hidden');
                 } else {
                     kooridnatorInput.classList.add('hidden');
+                    kooridnatorInput.value = '';
                 }
             });
+
         });
+
+        function updateValtanggapan(checkbox) {
+            var valtanggapanInput = document.getElementById('valtanggapan');
+
+            if (checkbox.checked) {
+                valtanggapanInput.value = 'Tanggapan Dan Saran';
+            } else {
+                valtanggapanInput.value = '';
+            }
+        }
+
+        function updateValProsesLebih(checkbox) {
+            var valprosesInput = document.getElementById('valprosesLebih');
+
+            if (checkbox.checked) {
+                valprosesInput.value = 'Proses Lebih Lanjut';
+            } else {
+                valprosesInput.value = '';
+            }
+        }
+
+        function updateValKoordinasi(checkbox) {
+            var valkoordinasiInput = document.getElementById('valkoordinasi');
+
+            if (checkbox.checked) {
+                valkoordinasiInput.value = 'Koordinasi';
+            } else {
+                valkoordinasiInput.value = '';
+            }
+        }
     </script>
 
 @endsection

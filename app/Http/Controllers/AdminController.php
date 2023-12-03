@@ -8,6 +8,7 @@ use App\Models\LembarDisposisi;
 use App\Models\SuratKeluar;
 use App\Models\SuratMasuk;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,7 @@ class AdminController extends Controller
     }
     public function suratMasuk()
     {
-        $dataSurat = SuratMasuk::all();
+        $dataSurat = SuratMasuk::orderBy('tanggal', 'desc')->get();
         return view('pages.suratMasuk')->with(['suratMasuk' => $dataSurat]);
     }
 
@@ -42,97 +43,115 @@ class AdminController extends Controller
         } else {
             $path = 'berkas kosong';
         }
-        // dd($path);
+
+
+        $data = [
+            'surat_dari' => $request->surat_dari,
+            'tgl_surat' => $request->tglSuratMasuk,
+            'nomor_surat' => $request->nomor_surat,
+            'tgl_diterima' => $request->tgl_diterima,
+            'nomor_agenda' => $request->nomor_agenda,
+            'sifat' => $request->sifat,
+            'hal' => $request->hal,
+            'catatan' => $request->catatan,
+            'valkasubag' => $request->valkasubag,
+            'valwaksek' => $request->valwaksek,
+            'valkapordi' => $request->valkapordi,
+            'valkoordinator' => $request->valkoordinator,
+            'valtanggapan' => $request->valtanggapan,
+            'valprosesLebih' => $request->valprosesLebih,
+            'valkoordinasi' => $request->valkoordinasi,
+            'vallainnya' => $request->vallainnya,
+        ];
+
+        $pdf = Pdf::loadView('pages.suratMasuk.lembarDisposisi', $data);
+        $pdf->setPaper('a4', 'landscape');
+
+        $filename = 'pdf_' . time() . 'Lembar Disposisi.pdf';
+        $directoryPath = 'uploads/lembarDisposisi/';
+        if (!Storage::exists($directoryPath)) {
+            Storage::makeDirectory($directoryPath, 0775, true, true);
+        }
+        $pathDisposisi = $directoryPath . $filename;
+        Storage::put($pathDisposisi, $pdf->output());
+
+        // return $pdf->download('output.pdf');
+
+
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratMasuk)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratMasuk = new SuratMasuk;
         $suratMasuk->nomor_berkas = $request->nomor_berkas;
         $suratMasuk->alamat_pengirim = $request->alamat;
-        $suratMasuk->tanggal = $request->tglSuratMasuk;
+        $suratMasuk->tanggal = $date;
         $suratMasuk->nomor = $request->nomorSuratMasuk;
         $suratMasuk->perihal = $request->perihal;
         $suratMasuk->nomor_petunjuk = $request->nomor_petunjuk;
         $suratMasuk->nomor_paket = $request->nomor_paket;
         $suratMasuk->berkas = $path;
+        $suratMasuk->berkas_disposisi = $pathDisposisi;
         $suratMasuk->save();
 
-        $idSurat = $suratMasuk->id;
-        // SuratMasuk::create([
-        //     'nomor_berkas' => $request->nomor_berkas,
-        //     'alamat_pengirim' => $request->alamat,
-        //     'tanggal' => $request->tglSuratMasuk,
-        //     'nomor' => $request->nomorSuratMasuk,
-        //     'perihal' => $request->perihal,
-        //     'nomor_petunjuk' => $request->nomor_petunjuk,
-        //     'nomor_paket' => $request->nomor_paket,
-        //     'berkas' => $path,
-        // ]);
+        // $idSurat = $suratMasuk->id;
 
-        $suratDetail = new LembarDisposisi;
-        $suratDetail->id_surat_masuk = $idSurat;
-        $suratDetail->surat_dari = $request->surat_dari;
-        $suratDetail->tanggal_surat = $request->tgl_surat;
-        $suratDetail->nomor_surat = $request->nomor_surat;
-        $suratDetail->diterima_tanggal = $request->tgl_diterima;
-        $suratDetail->nomor_agenda = $request->nomor_agenda;
-        $suratDetail->sifat = $request->sifat;
-        $suratDetail->hal = $request->hal;
-        $suratDetail->catatan = $request->catatan;
-        $suratDetail->save();
+        // $suratDetail = new LembarDisposisi;
+        // $suratDetail->id_surat_masuk = $idSurat;
+        // $suratDetail->surat_dari = $request->surat_dari;
+        // $suratDetail->tanggal_surat = $request->tgl_surat;
+        // $suratDetail->nomor_surat = $request->nomor_surat;
+        // $suratDetail->diterima_tanggal = $request->tgl_diterima;
+        // $suratDetail->nomor_agenda = $request->nomor_agenda;
+        // $suratDetail->sifat = $request->sifat;
+        // $suratDetail->hal = $request->hal;
+        // $suratDetail->catatan = $request->catatan;
+        // $suratDetail->save();
 
-        $idsuratDetail = $suratDetail->id;
-
-        // LembarDisposisi::create([
-        //     'id_surat_masuk' => $suratMasuk->id,
-        //     'surat_dari' => $request->surat_dari,
-        //     'tanggal_surat' => $request->tgl_surat,
-        //     'nomor_surat' => $request->nomor_surat,
-        //     'diterima_tanggal' => $request->tgl_diterima,
-        //     'nomor_agenda' => $request->nomor_agenda,
-        //     'sifat' => $request->sifat,
-        //     'hal' => $request->hal,
-        //     'catatan' => $request->catatan,
-        // ]);
-
-        $checkboxValues = $request->input('dtrskepada', []);
-        $checkboxValuesHormat = $request->input('dng_hormat', []);
+        // $idsuratDetail = $suratDetail->id;
 
 
-        $textInputValues = $request->input('dtrskepada_values', []);
-        $textInputValuesHormat = $request->input('dng_lainnya', []);
-        $combinedValues = [];
-        $combinedValuesHormat = [];
-        foreach ($checkboxValues as $checkboxValue) {
-            $combinedValues[] = [
-                'checkbox' => $checkboxValue,
-                'text_input' => $textInputValues[$checkboxValue] ?? null,
-            ];
-        }
-        foreach ($checkboxValuesHormat as $checkboxValueHormat) {
-            $combinedValuesHormat[] = [
-                'checkboxHormat' => $checkboxValueHormat,
-                'text_inputHormat' => $textInputValuesHormat[$checkboxValueHormat] ?? null,
-            ];
-        }
+        // $checkboxValues = $request->input('dtrskepada', []);
+        // $checkboxValuesHormat = $request->input('dng_hormat', []);
 
-        foreach ($combinedValues as $combinedValue) {
-            $checkboxValue = $combinedValue['checkbox'];
-            $textInputValue = $combinedValue['text_input'];
-            DetailDisposisiDtrs::create([
-                'id_lembards' => $idsuratDetail,
-                'idtrsk_ke' => $checkboxValue,
-                'name_dtrsk' => $textInputValue,
-            ]);
-        }
 
-        foreach ($combinedValuesHormat as $combinedValueHormat) {
-            $checkboxValueHormat = $combinedValueHormat['checkboxHormat'];
-            $textInputValueHormat = $combinedValueHormat['text_inputHormat'];
+        // $textInputValues = $request->input('dtrskepada_values', []);
+        // $textInputValuesHormat = $request->input('dng_lainnya', []);
+        // $combinedValues = [];
+        // $combinedValuesHormat = [];
+        // foreach ($checkboxValues as $checkboxValue) {
+        //     $combinedValues[] = [
+        //         'checkbox' => $checkboxValue,
+        //         'text_input' => $textInputValues[$checkboxValue] ?? null,
+        //     ];
+        // }
+        // foreach ($checkboxValuesHormat as $checkboxValueHormat) {
+        //     $combinedValuesHormat[] = [
+        //         'checkboxHormat' => $checkboxValueHormat,
+        //         'text_inputHormat' => $textInputValuesHormat[$checkboxValueHormat] ?? null,
+        //     ];
+        // }
 
-            DetailDisposisiDengHormat::create([
-                'id_lembards' => $idsuratDetail,
-                'idng_hormat' => $checkboxValueHormat,
-                'name_hormat' => $textInputValueHormat,
-            ]);
-        }
+        // foreach ($combinedValues as $combinedValue) {
+        //     $checkboxValue = $combinedValue['checkbox'];
+        //     $textInputValue = $combinedValue['text_input'];
+        //     DetailDisposisiDtrs::create([
+        //         'id_lembards' => $idsuratDetail,
+        //         'idtrsk_ke' => $checkboxValue,
+        //         'name_dtrsk' => $textInputValue,
+        //     ]);
+        // }
+
+        // foreach ($combinedValuesHormat as $combinedValueHormat) {
+        //     $checkboxValueHormat = $combinedValueHormat['checkboxHormat'];
+        //     $textInputValueHormat = $combinedValueHormat['text_inputHormat'];
+
+        //     DetailDisposisiDengHormat::create([
+        //         'id_lembards' => $idsuratDetail,
+        //         'idng_hormat' => $checkboxValueHormat,
+        //         'name_hormat' => $textInputValueHormat,
+        //     ]);
+        // }
+
+        return redirect('surat-masuk');
     }
 
     public function lembarDisposisi($idLembar)
@@ -149,7 +168,7 @@ class AdminController extends Controller
 
     public function undangan()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Undangan')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Undangan')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.undangan')->with(['suratKeluar' => $data]);
     }
     public function storeSuratkeluarUndangan(Request $request)
@@ -191,10 +210,12 @@ class AdminController extends Controller
 
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -207,7 +228,7 @@ class AdminController extends Controller
 
     public function dispensasiSiswa()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Siswa')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Siswa')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.dispensasi_siswa')->with(['suratKeluar' => $data]);
     }
 
@@ -272,7 +293,7 @@ class AdminController extends Controller
 
     public function dispensasiGuru()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Guru')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Guru')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.dispensasi_guru')->with(['suratKeluar' => $data]);
     }
 
@@ -311,10 +332,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -327,7 +350,7 @@ class AdminController extends Controller
 
     public function suratKeterangan()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Surat Keterangan')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Surat Keterangan')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.keterangan')->with(['suratKeluar' => $data]);
     }
 
@@ -366,16 +389,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
-        // if ($request->hasFile('berkas')) {
-        //     $path = $request->file('berkas')->store('uploads/suratMasuk');
-        // } else {
-        //     $path = 'berkas kosong';
-        // }
-        // dd($path);
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -388,7 +407,7 @@ class AdminController extends Controller
 
     public function suratKeteranganPendampingan()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pendampingan')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Pendampingan')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.ktrPendampingan')->with(['suratKeluar' => $data]);
     }
 
@@ -430,10 +449,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -446,7 +467,7 @@ class AdminController extends Controller
 
     public function suratKeteranganPindah()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pindah Sekolah')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Pindah Sekolah')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.ktrSuratPindahSekolah')->with(['suratKeluar' => $data]);
     }
 
@@ -490,10 +511,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -506,7 +529,7 @@ class AdminController extends Controller
 
     public function suratKeteranganLBTHSiswa()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Siswa')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Siswa')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.ktrLolosButuhSiswa')->with(['suratKeluar' => $data]);
     }
 
@@ -557,10 +580,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -573,7 +598,7 @@ class AdminController extends Controller
 
     public function suratKeteranganLBTHGuru()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Guru')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Guru')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.ktrLolosButuhGuru')->with(['suratKeluar' => $data]);
     }
 
@@ -616,10 +641,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -632,7 +659,7 @@ class AdminController extends Controller
 
     public function suratPertanggungJawabanGuru()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pertanggung Jawaban Mutlak Guru')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Pertanggung Jawaban Mutlak Guru')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.prtnggung_jawab_guru')->with(['suratKeluar' => $data]);
     }
 
@@ -675,10 +702,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -691,7 +720,7 @@ class AdminController extends Controller
 
     public function suratRekomendasiSiswa()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Dispensasi')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Rekomendasi Siswa')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.pengantar')->with(['suratKeluar' => $data]);
     }
 
@@ -751,7 +780,7 @@ class AdminController extends Controller
 
     public function suratRekomendasiGuru()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Surat Rekomendasi Guru')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Surat Rekomendasi Guru')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.ktrRekomendasiGuru')->with(['suratKeluar' => $data]);
     }
 
@@ -796,10 +825,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -814,7 +845,7 @@ class AdminController extends Controller
 
     public function suratPengantar()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pengantar')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Pengantar')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.pengantar')->with(['suratKeluar' => $data]);
     }
 
@@ -853,10 +884,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -869,7 +902,7 @@ class AdminController extends Controller
 
     public function suratTugasSiswa()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Tugas Siswa')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Tugas Siswa')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.suratTugasSiswa')->with(['suratKeluar' => $data]);
     }
 
@@ -907,10 +940,12 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -923,7 +958,7 @@ class AdminController extends Controller
 
     public function suratTugasGuru()
     {
-        $data = SuratKeluar::where('tipe_surat', 'Tugas Guru')->get();
+        $data = SuratKeluar::where('tipe_surat', 'Tugas Guru')->orderBy('tanggal', 'desc')->get();
         return view('pages.suratKeluar.suratTugasGuru')->with(['suratKeluar' => $data]);
     }
 
@@ -963,11 +998,13 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         // return $pdf->download('output.pdf');
 
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
 
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
@@ -1001,6 +1038,20 @@ class AdminController extends Controller
 
         $data->delete();
 
+        return redirect()->back();
+    }
+
+    public function deleteSuratMasuk($id)
+    {
+        $data = SuratMasuk::find($id);
+
+        $pathFile = $data->berkas;
+        $pathFileDisposisi = $data->berkas_disposisi;
+        if ($pathFile != null || $pathFile != '' || $pathFileDisposisi != null || $pathFileDisposisi != '') {
+            Storage::delete($pathFile);
+            Storage::delete($pathFileDisposisi);
+        }
+        $data->delete();
         return redirect()->back();
     }
 }

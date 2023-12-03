@@ -538,103 +538,235 @@
 </head>
 
 <body class="font-tmr mx-10">
-    <table style="width: 100%;">
-        <tr>
-            <td style="width: 80px;">
-                <img src="{{ asset('assets/img/LogoprovGorontalo.png') }}" alt="Logo Provinsi Gorontalo"
-                    class=" mt-2" />
+    <div class="mt-4">
+        <div style="float: right">
+            <p style="border-color: black; font-size:12px" class="font-bold text-right border-4 p-2 inline-block">
+                Form 02 - IK 4.2.4.a.
+            </p>
+        </div>
+        <div style="clear: both;"></div>
+        <div class="flex justify-between">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 80px;">
+                        <img src="{{ public_path('assets/img/LogoprovGorontalo.png') }}" alt="Logo Provinsi Gorontalo"
+                            class=" mt-2" />
+                    </td>
+                    <td style="width: 100%; ">
+                        <h1 style="font-size: 12px; font-weight: bold;" class="text-center">PEMERINTAH PROVINSI
+                            GORONTALO</h1>
+                        <h1 style="font-weight: bold;" class="text-center">DINAS PENDIDIKAN DAN KEBUDAYAAN</h1>
+                        <h1 style="font-weight: bold;" class="text-center">SMK NEGERI 1 GORONTALO</h1>
+                        <p style="font-size: 12px;" class="text-center">
+                            Jl. Ternate Telp (0435)822772 Fax : (0435)822772 Kota Gorontalo 96125
+                        </p>
+                        <p style="font-size: 12px;" class="text-center">
+                            Website: <i style="color: red">smkn1gorontalo.sch.id</i> E-mail :
+                            <u style="color: blue">smkn1gtlo@yahoo.co.id</u>
+                        </p>
+                    </td>
+                    <td style="width: 100px;">
+                        <img src="{{ public_path('assets/img/LogoSmea.png') }}" alt="Logo SMKN 1 GORONTALO"
+                            class="mt-2" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="border-width: 1.5px; border-style: solid; border-color: black;" class="w-full mt-2"></div>
+        <div style="border-width: 0.5px; border-style: solid; border-color: black; margin-top: 2px" class="w-full">
+        </div>
+    </div>
+    <h1 class="text-center my-4 font-black">LEMBAR DISPOSISI</h1>
+    <table style="border-color: black" class="w-full border borderborder-collapse">
+        <tr style="border-color: black">
+            <td style="border-color: black" class="align-top pl-2" style="width: 460px">
+                <table style="border-color: black">
+                    <tr>
+                        <td style="width:100px;border-color: black">Surat dari</td>
+                        <td style="padding-right:5px">:</td>
+                        <td>{{ $surat_dari }}</td>
+                    </tr>
+                    <br />
+                    <tr>
+                        <td style="width:100px;border-color: black">Tgl. Surat</td>
+                        <td style="padding-right:5px">:</td>
+                        @php
+                            $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tgl_surat);
+                            $formattedDatetanggal_surat = $convertdate->isoFormat('dddd, D MMMM YYYY');
+                        @endphp
+                        <td>{{ $formattedDatetanggal_surat }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width:100px;border-color: black">Nomor Surat</td>
+                        <td style="padding-right:5px">:</td>
+                        <td>{{ $nomor_surat }}</td>
+                    </tr>
+                </table>
             </td>
-            <td style="width: 100%; ">
-                <h1 style="font-size: 12px; font-weight: bold;" class="text-center">PEMERINTAH PROVINSI GORONTALO</h1>
-                <h1 style="font-weight: bold;" class="text-center">DINAS PENDIDIKAN DAN KEBUDAYAAN</h1>
-                <h1 style="font-weight: bold;" class="text-center">SMK NEGERI 1 GORONTALO</h1>
-                <p style="font-size: 12px;" class="text-center">
-                    Jl. Ternate Telp (0435)822772 Fax : (0435)822772 Kota Gorontalo 96125
-                </p>
-                <p style="font-size: 12px;" class="text-center">
-                    Website: <i style="color: red">smkn1gorontalo.sch.id</i> E-mail :
-                    <u style="color: blue">smkn1gtlo@yahoo.co.id</u>
-                </p>
-            </td>
-            <td style="width: 100px;">
-                <img src="{{ asset('assets/img/LogoSmea.png') }}" alt="Logo SMKN 1 GORONTALO" class="mt-2" />
-            </td>
-        </tr>
-    </table>
+            <td style="border-color: black" class="border border-black align-top pl-2">
+                <table>
+                    <tr>
+                        <td style="width:100px">Diterima Tgl</td>
+                        <td style="padding-right:5px">:</td>
+                        @php
+                            $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tgl_diterima);
+                            $formattedDatediterima = $convertdate->isoFormat('dddd, D MMMM YYYY');
+                        @endphp
+                        <td>{{ $formattedDatediterima }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width:100px">No. Agenda</td>
+                        <td style="padding-right:5px">:</td>
+                        <td>{{ $nomor_agenda }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width:100px">Sifat</td>
+                        <td style="padding-right:5px">:</td>
+                        @php
+                            if ($sifat == 0) {
+                                $sif = 'Sangat Segera';
+                            } elseif ($sifat == 0) {
+                                $sif = 'Segera';
+                            } else {
+                                $sif = 'Rahasia';
+                            }
+                        @endphp
+                        <td>{{ $sif }}</td>
+                    </tr>
+                </table>
+                <table>
+                    <tr>
+                        <td style="padding-right: 10px;">
+                            @if ($sifat == 0)
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-right: 10px;">
+                            <div>Sangat Segera</div>
+                        </td>
+                        <td style="padding-right: 10px;">
+                            @if ($sifat == 1)
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-right: 10px;">
+                            <div>Segera</div>
+                        </td>
+                        <td style="padding-right: 10px;">
+                            @if ($sifat == 2)
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-right: 10px;">
+                            <div>Rahasia</div>
+                        </td>
+                    </tr>
+                </table>
 
-    <div style="border-width: 1.5px; border-style: solid; border-color: black;" class="w-full mt-1"></div>
-    <div style="border-width: 0.5px; border-style: solid; border-color: black; margin-top: 2px" class="w-full"></div>
-    <table class="w-full border border-black border-collapse">
-        <tr>
-            <td class="border border-black pl-2 w-1/2">
-                <p>Surat dari :</p>
-                <br />
-                <p>Tgl. Surat :</p>
-                <p>Nomor Surat :</p>
-            </td>
-            <td class="border border-black align-top pl-2">
-                <p>Diterima Tgl :</p>
-                <p>No. Agenda :</p>
-                <p>Sifat :</p>
-                <div class="flex justify-between">
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>Sangat Segera</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>Segera</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>Rahasia</div>
-                    </div>
-                </div>
             </td>
         </tr>
         <tr>
-            <td colspan="2" class="border border-black pl-2">
+            <td style="border-color: black" colspan="2" class="border border-black pl-2">
                 <p>Hal :</p>
             </td>
         </tr>
         <tr>
-            <td class="border border-black pl-2">
+            <td style="border-color: black" class="border border-black pl-2 align-top">
                 <p>Diteruskan Kepada Sdr :</p>
                 <div class="pl-6">
                     <p>1. Kasubag TU</p>
-                    <p>2. Waksek</p>
-                    <p>3. Ka. Prog. Keahl</p>
-                    <p>4. Koordinator</p>
-                    <p>5. ........</p>
-                    <p>6. ........</p>
-                    <p>7. ........</p>
+                    <p>2. Waksek {{ $valwaksek }}</p>
+                    <p>3. Ka. Prog. Keahl {{ $valkapordi }}</p>
+                    <p>4. Koordinator {{ $valkoordinator }}</p>
+                    <p>5. ..........................................</p>
+                    <p>6. ..........................................</p>
+                    <p>7. ..........................................</p>
                 </div>
             </td>
-            <td class="border border-black pl-2 align-top">
+            <td style="border-color: black" class="border border-black pl-2 align-top">
                 <p>Dengan hormat harap :</p>
-                <div class="flex flex-col justify-normal gap-4">
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>Tanggapan dan Saran</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>Proses Lebih Lanjut</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>Koordinasi / Konfirmasikan</div>
-                    </div>
-                    <div class="flex gap-2">
-                        <div class="w-10 h-8 border border-black"></div>
-                        <div>..........</div>
-                    </div>
-                </div>
+                <table>
+                    <tr>
+                        <td style="padding-top: 10px;">
+                            @if (isset($valtanggapan))
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-top: 10px;padding-left: 10px">
+                            <div>Tanggapan dan Saran</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 10px;">
+                            @if (isset($valprosesLebih))
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-top: 10px; padding-left: 10px">
+                            <div>Proses Lebih lanjut</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 10px;">
+                            @if (isset($valkoordinasi))
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-top: 10px;padding-left: 10px">
+                            <div>Koordinasi / Konfirmasikan</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 10px;">
+                            @if (isset($vallainnya))
+                                <div style="border: 1px solid black; width: 2.5rem; height: 2rem;">
+                                    <img src="{{ public_path('assets/img/checklist.png') }}"
+                                        alt="Logo Provinsi Gorontalo" />
+                                </div>
+                            @else
+                                <div style="border-color: black" class="w-10 h-8 border border-black;"></div>
+                            @endif
+                        </td>
+                        <td style="padding-top: 10px;padding-left: 10px">
+                            <div>{{ $vallainnya }}</div>
+                        </td>
+                    </tr>
+                </table>
             </td>
         </tr>
         <tr>
-            <td class="border border-black pl-2 h-20 align-top" colspan="2">
-                <p>Catatan :</p>
+            <td style="border-color: black" class="border border-black pl-2 h-20 align-top" colspan="2">
+                <p>Catatan : {{ $catatan }}</p>
             </td>
         </tr>
     </table>

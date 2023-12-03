@@ -101,4 +101,5 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('/delete-surat/{id}', [AdminController::class, 'deleteSurat'])->name('delete-surat/{id}');
+    Route::get('/delete-surat-masuk/{id}', [AdminController::class, 'deleteSuratMasuk'])->name('delete-surat-masuk/{id}');
 });

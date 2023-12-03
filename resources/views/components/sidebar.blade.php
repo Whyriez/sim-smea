@@ -21,13 +21,6 @@
                                 <span class="ml-3" sidebar-toggle-item>Surat Masuk</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ url('surat-masuk') }}"
-                                class="flex items-center p-2 text-base text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 @yield('suratMasuk')">
-                                <i class="fa-regular fa-envelope"></i>
-                                <span class="ml-3" sidebar-toggle-item>Lembar Disposisi</span>
-                            </a>
-                        </li>
                     @elseif(Auth::user()->role == 1)
                         <li>
                             <button type="button"
