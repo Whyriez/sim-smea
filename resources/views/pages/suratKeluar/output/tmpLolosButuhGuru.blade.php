@@ -449,20 +449,20 @@
     <div>
         <p style="margin-bottom: 0.5rem">Yang bertanda tangan di bawah ini :</p>
         <div style="text-align: justify; margin-left: 3rem;">
-            <p><span style="display: inline-block; width: 100px">Nama </span>: {{ $nama_bertanda }}</p>
-            <p><span style="display: inline-block; width: 100px">Nip </span>: {{ $nip_bertanda }}</p>
-            <p><span style="display: inline-block; width: 100px">Pangkat/Golongan </span>: {{ $pangkat_golongan }}</p>
-            <p><span style="display: inline-block; width: 100px">Jabatan </span>: {{ $jabatan_bertanda }}</p>
+            <p><span style="display: inline-block; width: 150px">Nama </span>: {{ $nama_bertanda }}</p>
+            <p><span style="display: inline-block; width: 150px">Nip </span>: {{ $nip_bertanda }}</p>
+            <p><span style="display: inline-block; width: 150px">Pangkat/Golongan </span>: {{ $pangkat_golongan }}</p>
+            <p><span style="display: inline-block; width: 150px">Jabatan </span>: {{ $jabatan_bertanda }}</p>
         </div>
     </div>
     <div style="margin-bottom: 1rem;">
         <p style="margin-bottom: 0.5rem">Menerangkan kepada :</p>
         <div style="text-align: justify; margin-left: 3rem;">
-            <p><span style="display: inline-block; width: 100px">Nama </span>: <font
+            <p><span style="display: inline-block; width: 150px">Nama </span>: <font
                     style="text-transform: uppercase;font-weight: bold;">{{ $nama_diterangkan }}</font>
             </p>
-            <p><span style="display: inline-block; width: 100px">Nip </span>: {{ $nip_diterangkan }}</p>
-            <p><span style="display: inline-block; width: 100px">Pendidikan </span>: {{ $pendidikan }}</p>
+            <p><span style="display: inline-block; width: 150px">Nip </span>: {{ $nip_diterangkan }}</p>
+            <p><span style="display: inline-block; width: 150px">Pendidikan </span>: {{ $pendidikan }}</p>
         </div>
     </div>
     <div style="margin-bottom: 4rem;">
@@ -471,15 +471,18 @@
             terbitkan untuk dipergunakan sebagaimana mestinya.</p>
     </div>
     <div style="float: right; text-align: left;">
-        <div style="width: 20rem; height: 10;">
+        <div style="width: 15rem; height: 10;">
             @php
+                use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
                 $tglSurat = $convertdate->format('d F Y');
+
+                $kepalaSekolah = DB::select('SELECT * FROM users where role = 2')[0];
             @endphp
-            <p>Gorontalo, 17 Oktober 2023</p>
-            <p style="margin-bottom: 4rem;">Kepala Sekolah</p>
-            <p>{{ $nama_kepala }}</p>
-            <p>NIP : {{ $nip_kepala }}</p>
+            <p>Gorontalo, {{ $tglSurat }}</p>
+            <p style="margin-bottom: 4rem">Kepala Sekolah</p>
+            <p>{{ $kepalaSekolah->name }}</p>
+            <p>NIP : {{ $kepalaSekolah->nip }}</p>
         </div>
     </div>
 </body>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('nip')->default('0000000');
             $table->string('profile')->default('default.jpg');
             $table->string('ttd')->default('default.png');
             $table->integer('role');

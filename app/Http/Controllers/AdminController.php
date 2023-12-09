@@ -7,22 +7,41 @@ use App\Models\DetailDisposisiDtrs;
 use App\Models\LembarDisposisi;
 use App\Models\SuratKeluar;
 use App\Models\SuratMasuk;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
     public function index()
     {
+        $count = SuratKeluar::where('status_persetujuan', 'diajukan')->count();
+        $belumTTD = SuratKeluar::where('status_persetujuan', 'belum')->count();
+        $sudahTTD = SuratKeluar::where('status_persetujuan', 'diterima')->count();
+        $countSudah = SuratKeluar::where('status_persetujuan', 'diterima')->count();
+        $totMasuk = SuratMasuk::count();
         $user = Auth::user();
-        return view('pages.index')->with(['user' => $user]);
+        return view('pages.index')->with([
+            'user' => $user, 'count' => $count, 'countSudah' => $countSudah, 'belumTTD' => $belumTTD, 'sudahTTD' => $sudahTTD,
+            'totMasuk' => $totMasuk
+        ]);
     }
-    public function suratMasuk()
+    public function suratMasuk(Request $request)
     {
-        $dataSurat = SuratMasuk::orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $dataSurat = SuratMasuk::when($keyword, function ($query) use ($keyword) {
+            $query->where(function ($query) use ($keyword) {
+                $query->where('nomor_berkas', 'like', "%$keyword%")
+                    ->orWhere('alamat_pengirim', 'like', "%$keyword%")
+                    ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                    ->orWhere('nomor_paket', 'like', "%$keyword%")
+                    ->orWhere('nomor', 'like', "%$keyword%");
+            });
+        })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratMasuk')->with(['suratMasuk' => $dataSurat]);
     }
 
@@ -151,6 +170,7 @@ class AdminController extends Controller
         //     ]);
         // }
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-masuk');
     }
 
@@ -166,9 +186,20 @@ class AdminController extends Controller
         ]);
     }
 
-    public function undangan()
+    public function undangan(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Undangan')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+
+        $data = SuratKeluar::where('tipe_surat', 'Undangan')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.undangan')->with(['suratKeluar' => $data]);
     }
     public function storeSuratkeluarUndangan(Request $request)
@@ -223,12 +254,23 @@ class AdminController extends Controller
         $suratKeluar->berkas = $path;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-undangan');
     }
 
-    public function dispensasiSiswa()
+    public function dispensasiSiswa(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Siswa')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Siswa')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.dispensasi_siswa')->with(['suratKeluar' => $data]);
     }
 
@@ -245,55 +287,64 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
-            'perihal' => $request->perihal,
-            'date_perihal' => $request->date_perihal,
-            'nomor_perihal' => $request->nomor_perihal,
+            'perihal' => $request->perihalAwal,
             'nama_siswa' => $request->nama_siswa,
             'kelas_siswa' => $request->kelas_siswa,
             'keterangan' => $request->keterangan,
             'kegiatan' => $request->kegiatan,
-            'waktu_dilaksanakan' => $request->waktu_dilaksanakan,
-            'tgl_dilaksanakan' => $request->tgl_dilaksanakan,
-            'tempat_dilaksanakan' => $request->tempat_dilaksanakan,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
+            'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpDispensasiSiswa', $data);
-        // $filename = 'pdf_' . time() . '.pdf';
-        // $directoryPath = 'public/uploads/suratKeluar/';
-        // if (!Storage::exists($directoryPath)) {
-        //     Storage::makeDirectory($directoryPath, 0775, true, true);
-        // }
-        // $path = $directoryPath . $filename;
-        // Storage::put($path, $pdf->output());
-        return $pdf->download('output.pdf');
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpDispensasiSiswa', $data);
+        $filename = 'pdf_' . time() . 'Dispensasi Siswa.pdf';
+        $filenameTTD = 'pdf_' . time() . 'Disepnsasi Siswa Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
+        if (!Storage::exists($directoryPath)) {
+            Storage::makeDirectory($directoryPath, 0775, true, true);
+        }
+        $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
+        Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
+        // return $pdf->download('output.pdf');
 
-        // if ($request->hasFile('berkas')) {
-        //     $path = $request->file('berkas')->store('uploads/suratMasuk');
-        // } else {
-        //     $path = 'berkas kosong';
-        // }
-        // dd($path);
-        // $suratKeluar = new SuratKeluar;
-        // $suratKeluar->nomor_berkas = $request->nomor_berkas;
-        // $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        // $suratKeluar->tanggal = $request->tglSuratKeluar;
-        // $suratKeluar->tipe_surat = $request->tipeSurat;
-        // $suratKeluar->perihal = $request->perihal;
-        // $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
-        // $suratKeluar->nomor_paket = $request->nomor_paket;
-        // $suratKeluar->berkas = $path;
-        // $suratKeluar->save();
+        $suratKeluar = new SuratKeluar;
+        $suratKeluar->nomor_berkas = $request->nomor_berkas;
+        $suratKeluar->alamat_penerima = $request->alamatPenerima;
+        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tipe_surat = $request->tipeSurat;
+        $suratKeluar->perihal = $request->perihal;
+        $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
+        $suratKeluar->nomor_paket = $request->nomor_paket;
+        $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
+        $suratKeluar->save();
 
-        // return redirect('surat-keluar-dispensasi');
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
+        return redirect('surat-keluar-dispensasi-siswa');
     }
 
-    public function dispensasiGuru()
+    public function dispensasiGuru(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Guru')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Dispensasi Guru')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.dispensasi_guru')->with(['suratKeluar' => $data]);
     }
 
@@ -310,6 +361,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_guru' => $request->nama_guru,
@@ -317,19 +370,24 @@ class AdminController extends Controller
             'pangkat_gol' => $request->pangkat_gol,
             'jabatan' => $request->jabatan,
             'perihal' => $request->perihalSurat,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpDispensasiGuru', $data);
-        $filename = 'pdf_' . time() . '.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpDispensasiGuru', $data);
+        $filename = 'pdf_' . time() . 'Disepnsasi Guru.pdf';
+        $filenameTTD = 'pdf_' . time() . 'Disepnsasi Guru Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -343,14 +401,26 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-dispensasi-guru');
     }
 
-    public function suratKeterangan()
+    public function suratKeterangan(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Surat Keterangan')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Surat Keterangan')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.keterangan')->with(['suratKeluar' => $data]);
     }
 
@@ -367,6 +437,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_guru' => $request->nama_guru,
@@ -374,19 +446,24 @@ class AdminController extends Controller
             'pangkat_gol' => $request->pangkat_gol,
             'jabatan' => $request->jabatan,
             'perihal' => $request->perihalSurat,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
-        $filename = 'pdf_' . time() . 'Undangan.pdf';
+        $filename = 'pdf_' . time() . 'Keterangan.pdf';
+        $filenameTTD = 'pdf_' . time() . 'Keterangan Acc.pdf';
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpKeterangan', $data);
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpKeterangan', $data);
         $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -400,14 +477,26 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-keterangan');
     }
 
-    public function suratKeteranganPendampingan()
+    public function suratKeteranganPendampingan(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pendampingan')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Pendampingan')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.ktrPendampingan')->with(['suratKeluar' => $data]);
     }
 
@@ -424,6 +513,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_bertanda' => $request->nama_bertanda,
@@ -434,19 +525,24 @@ class AdminController extends Controller
             'jabatan_diterangkan' => $request->jabatan_diterangkan,
             'perihal' => $request->perihal,
             'list_perihal' => $request->list_perihal,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpKtrPendampingan', $data);
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpKtrPendampingan', $data);
         $filename = 'pdf_' . time() . 'Pendampingan.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $filenameTTD = 'pdf_' . time() . 'Pendampingan Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -456,18 +552,30 @@ class AdminController extends Controller
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
         $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
-        $suratKeluar->perihal = $request->perihal;
+        $suratKeluar->perihal = $request->perihalSurat;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-keterangan-pendampingan');
     }
 
-    public function suratKeteranganPindah()
+    public function suratKeteranganPindah(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pindah Sekolah')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Pindah Sekolah')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.ktrSuratPindahSekolah')->with(['suratKeluar' => $data]);
     }
 
@@ -484,6 +592,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_bertanda' => $request->nama_bertanda,
@@ -496,19 +606,24 @@ class AdminController extends Controller
             'alamat' => $request->alamat,
             'perihal' => $request->perihalSurat,
             'catatan' => $request->catatan,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpSuratPindahSekolah', $data);
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpSuratPindahSekolah', $data);
         $filename = 'pdf_' . time() . 'PindahSekolah.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $filenameTTD = 'pdf_' . time() . 'PindahSekolah Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -522,14 +637,27 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-keterangan-pindah');
     }
 
-    public function suratKeteranganLBTHSiswa()
+    public function suratKeteranganLBTHSiswa(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Siswa')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Siswa')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.ktrLolosButuhSiswa')->with(['suratKeluar' => $data]);
     }
 
@@ -545,6 +673,8 @@ class AdminController extends Controller
         //         'gambar.mimes' => 'Format File Harus JPG,PNG',
         //     ]
         // );
+
+        $dataKepala = User::where('role', 2)->first();
 
         $data = [
             'nomor_surat' => $request->nomor_surat,
@@ -565,19 +695,24 @@ class AdminController extends Controller
             'sah_diterima' => $request->sah_diterima,
             'tgl_sahDiterima' => $request->tgl_sahDiterima,
             'ket_sahDiterima' => $request->ket_sahDiterima,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpLolosButuhSiswa', $data);
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpLolosButuhSiswa', $data);
         $filename = 'pdf_' . time() . 'LolosButuhSiswa.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $filenameTTD = 'pdf_' . time() . 'LolosButuhSiswa Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -591,14 +726,27 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-keterangan-lolos-butuh-siswa');
     }
 
-    public function suratKeteranganLBTHGuru()
+    public function suratKeteranganLBTHGuru(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Guru')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Lolos Butuh Guru')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.ktrLolosButuhGuru')->with(['suratKeluar' => $data]);
     }
 
@@ -615,6 +763,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_bertanda' => $request->nama_bertanda,
@@ -626,19 +776,24 @@ class AdminController extends Controller
             'pendidikan' => $request->pendidikan,
             'perihal' => $request->perihalSurat,
             'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpLolosButuhGuru', $data);
-        $filename = 'pdf_' . time() . '.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpLolosButuhGuru', $data);
+        $filename = 'pdf_' . time() . 'Lolos Butuh Guru.pdf';
+        $filenameTTD = 'pdf_' . time() . 'Lolos Butuh Guru Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -652,14 +807,27 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-keterangan-lolos-butuh-guru');
     }
 
-    public function suratPertanggungJawabanGuru()
+    public function suratPertanggungJawabanGuru(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pertanggung Jawaban Mutlak Guru')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Pertanggung Jawaban Mutlak Guru')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.prtnggung_jawab_guru')->with(['suratKeluar' => $data]);
     }
 
@@ -694,7 +862,7 @@ class AdminController extends Controller
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpPrtnggungJawabGuru', $data);
         $filename = 'pdf_' . time() . 'Pertanggung Jawaban Guru Mutlak.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
@@ -715,12 +883,24 @@ class AdminController extends Controller
         $suratKeluar->berkas = $path;
         $suratKeluar->save();
 
+
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-pertanggung-jawaban-guru');
     }
 
-    public function suratRekomendasiSiswa()
+    public function suratRekomendasiSiswa(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Rekomendasi Siswa')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Rekomendasi Siswa')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.pengantar')->with(['suratKeluar' => $data]);
     }
 
@@ -744,8 +924,6 @@ class AdminController extends Controller
             'uraian' => $request->uraian,
             'banyaknya' => $request->banyaknya,
             'keterangan' => $request->keterangan,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpPengantar', $data);
@@ -778,9 +956,19 @@ class AdminController extends Controller
         // return redirect('surat-keluar-dispensasi');
     }
 
-    public function suratRekomendasiGuru()
+    public function suratRekomendasiGuru(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Surat Rekomendasi Guru')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Surat Rekomendasi Guru')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.ktrRekomendasiGuru')->with(['suratKeluar' => $data]);
     }
 
@@ -797,6 +985,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_bertanda' => $request->nama_bertanda,
@@ -810,19 +1000,24 @@ class AdminController extends Controller
             'jabatan_diterangkan' => $request->jabatan_diterangkan,
             'unitKerja_diterangkan' => $request->unitKerja_diterangkan,
             'perihal' => $request->perihalSurat,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpRekomendasiGuru', $data);
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpRekomendasiGuru', $data);
         $filename = 'pdf_' . time() . 'Rekomendasi Guru.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $filenameTTD = 'pdf_' . time() . 'Rekomendasi Guru Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -836,16 +1031,29 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-rekomendasi-guru');
     }
 
 
 
-    public function suratPengantar()
+    public function suratPengantar(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Pengantar')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Pengantar')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.pengantar')->with(['suratKeluar' => $data]);
     }
 
@@ -862,6 +1070,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'kepada_yth' => $request->kepada_yth,
@@ -869,20 +1079,27 @@ class AdminController extends Controller
             'uraian' => $request->uraian,
             'banyaknya' => $request->banyaknya,
             'keterangan' => $request->keterangan,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
+        // 'nama_kepala' => $request->nama_kepala,
+        // 'nip_kepala' => $request->nip_kepala,
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpPengantar', $data);
-        $filename = 'pdf_' . time() . '.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpPengantar', $data);
+        $filename = 'pdf_' . time() . 'Pengantar .pdf';
+        $filenameTTD = 'pdf_' . time() . 'Pengantar Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
-        // return $pdf->download('output.pdf');
+        Storage::put($pathTTD, $pdfTTD->output());
+        // return $pdfTTD->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
 
@@ -895,14 +1112,26 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-pengantar');
     }
 
-    public function suratTugasSiswa()
+    public function suratTugasSiswa(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Tugas Siswa')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Tugas Siswa')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.suratTugasSiswa')->with(['suratKeluar' => $data]);
     }
 
@@ -919,25 +1148,32 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'nama_siswa' => $request->nama_siswa,
             'kelas_siswa' => $request->kelas_siswa,
             'keterangan' => $request->keterangan,
             'kegiatan' => $request->kegiatan,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpTugasSiswa', $data);
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpTugasSiswa', $data);
         $filename = 'pdf_' . time() . 'Tugas Siswa.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $filenameTTD = 'pdf_' . time() . 'Tugas Siswa Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -951,14 +1187,26 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-tugas-siswa');
     }
 
-    public function suratTugasGuru()
+    public function suratTugasGuru(Request $request)
     {
-        $data = SuratKeluar::where('tipe_surat', 'Tugas Guru')->orderBy('tanggal', 'desc')->get();
+        $keyword = $request->input('search');
+        $data = SuratKeluar::where('tipe_surat', 'Tugas Guru')
+            ->when($keyword, function ($query) use ($keyword) {
+                $query->where(function ($query) use ($keyword) {
+                    $query->where('nomor_berkas', 'like', "%$keyword%")
+                        ->orWhere('alamat_penerima', 'like', "%$keyword%")
+                        ->orWhere('nomor_petunjuk', 'like', "%$keyword%")
+                        ->orWhere('nomor_paket', 'like', "%$keyword%")
+                        ->orWhere('perihal', 'like', "%$keyword%");
+                });
+            })->orderBy('tanggal', 'desc')->paginate(10);
         return view('pages.suratKeluar.suratTugasGuru')->with(['suratKeluar' => $data]);
     }
 
@@ -975,6 +1223,8 @@ class AdminController extends Controller
         //     ]
         // );
 
+        $dataKepala = User::where('role', 2)->first();
+
         $data = [
             'nomor_surat' => $request->nomor_surat,
             'perihal_awal' => $request->perihal_awal,
@@ -983,19 +1233,24 @@ class AdminController extends Controller
             'pangkat_gol' => $request->pangkat_gol,
             'jabatan_diterangkan' => $request->jabatan_diterangkan,
             'kegiatan' => $request->kegiatan,
-            'nama_kepala' => $request->nama_kepala,
-            'nip_kepala' => $request->nip_kepala,
             'tglSuratKeluar' => $request->tglSuratKeluar,
+            'nama_kepala' => $dataKepala->name,
+            'nip_kepala' => $dataKepala->nip,
+            'ttd_kepala' => $dataKepala->ttd,
         ];
 
         $pdf = Pdf::loadView('pages.suratKeluar.output.tmpTugasGuru', $data);
-        $filename = 'pdf_' . time() . '.pdf';
-        $directoryPath = 'public/uploads/suratKeluar/';
+        $pdfTTD = Pdf::loadView('pages.suratKeluar.outputTTD.tmpTugasGuru', $data);
+        $filename = 'pdf_' . time() . 'Tugas Guru.pdf';
+        $filenameTTD = 'pdf_' . time() . 'Tugas Guru Acc.pdf';
+        $directoryPath = 'uploads/suratKeluar/';
         if (!Storage::exists($directoryPath)) {
             Storage::makeDirectory($directoryPath, 0775, true, true);
         }
         $path = $directoryPath . $filename;
+        $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
+        Storage::put($pathTTD, $pdfTTD->output());
         // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
@@ -1010,8 +1265,10 @@ class AdminController extends Controller
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;
         $suratKeluar->nomor_paket = $request->nomor_paket;
         $suratKeluar->berkas = $path;
+        $suratKeluar->berkasTTD = $pathTTD;
         $suratKeluar->save();
 
+        Session::flash('store', 'Surat Berhasil Ditambahkan!');
         return redirect('surat-keluar-tugas-guru');
     }
 
@@ -1032,12 +1289,27 @@ class AdminController extends Controller
         $data = SuratKeluar::find($id);
 
         $pathFile = $data->berkas;
+        $pathFileTTD = $data->berkasTTD;
+        if ($pathFile != null || $pathFile != '' || $pathFileTTD != null || $pathFileTTD != '') {
+            Storage::delete($pathFile);
+            Storage::delete($pathFileTTD);
+        }
+
+        $data->delete();
+
+        return redirect()->back();
+    }
+
+    public function deleteSuratNoTTD($id)
+    {
+        $data = SuratKeluar::find($id);
+
+        $pathFile = $data->berkas;
         if ($pathFile != null || $pathFile != '') {
             Storage::delete($pathFile);
         }
 
         $data->delete();
-
         return redirect()->back();
     }
 

@@ -682,13 +682,17 @@
     <div style="float: right; text-align: left;">
         <div style="width: 15rem; height: 10;">
             @php
+                use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
                 $tglSurat = $convertdate->format('d F Y');
+
+                $kepalaSekolah = DB::select('SELECT * FROM users where role = 2')[0];
+                // dd($kepalaSekolah);
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p style="margin-bottom: 4rem">Kepala Sekolah</p>
-            <p>{{ $nama_kepala }}</p>
-            <p>NIP : {{ $nip_kepala }}</p>
+            <p>{{ $kepalaSekolah->name }}</p>
+            <p>NIP : {{ $kepalaSekolah->nip }}</p>
         </div>
     </div>
 </body>

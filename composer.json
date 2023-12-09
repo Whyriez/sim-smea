@@ -12,7 +12,9 @@
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "setasign/fpdi": "^2.5",
-        "tecnickcom/tcpdf": "^6.6"
+        "smalot/pdfparser": "^2.7",
+        "tecnickcom/tcpdf": "^6.6",
+        "thiagoalessio/tesseract_ocr": "^2.13"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

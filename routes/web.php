@@ -89,9 +89,11 @@ Route::group(['middleware' => 'auth'], function () {
     //KEPALA SEKOLAH
     //ajukan ttd
     Route::get('/ajukan-ttd/{id}', [AdminController::class, 'ajukanTTD'])->name('ajukan-ttd/{id}');
-
     //data surat
     Route::get('/data-surat', [KepsekController::class, 'index'])->name('data-surat');
+    Route::get('/data-surat-sudah', [KepsekController::class, 'suratSudah'])->name('data-surat-sudah');
+    //update-profile
+
 
 
     //ttd
@@ -101,5 +103,6 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('/delete-surat/{id}', [AdminController::class, 'deleteSurat'])->name('delete-surat/{id}');
+    Route::get('/delete-surat-no-ttd/{id}', [AdminController::class, 'deleteSuratNoTTD'])->name('delete-surat-no-ttd/{id}');
     Route::get('/delete-surat-masuk/{id}', [AdminController::class, 'deleteSuratMasuk'])->name('delete-surat-masuk/{id}');
 });

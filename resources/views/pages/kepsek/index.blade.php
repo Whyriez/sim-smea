@@ -1,22 +1,23 @@
 @extends('layouts.app')
 @section('title', 'Surat Masuk')
-@section('suratMasuk', 'bg-gray-100 dark:bg-gray-700')
+@section('suratKeluarBelumTTD', 'bg-gray-100 dark:bg-gray-700')
 
 @section('content')
     <div
         class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div class="w-full mb-1">
             <div class="mb-4">
-                <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Data Surat</h1>
+                <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Data Surat Butuh Tanda Tangan
+                </h1>
             </div>
             <div class="sm:flex">
                 <div class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700">
-                    <form class="lg:pr-3" action="{{ url('table') }}" method="GET">
+                    <form class="lg:pr-3" action="{{ url('data-surat') }}" method="GET">
                         <label for="users-search" class="sr-only">Search</label>
                         <div class="flex items-center">
                             <input type="text" name="search"
                                 class="flex-1 bg-gray-50 w-[20rem] border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="Cari Menu">
+                                placeholder="Cari Surat">
                             <button type="submit"
                                 class="ml-2 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-primary-800">
                                 Cari
@@ -24,7 +25,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
+                {{-- <div class="flex items-center ml-auto space-x-2 sm:space-x-3">
                     <button type="button" data-modal-toggle="tambahSurat"
                         class="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-primary-800">
                         <svg class="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
@@ -35,7 +36,7 @@
                         </svg>
                         Tambah Surat
                     </button>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -163,11 +164,63 @@
                 </div>
             </div>
         </div>
+
+        <div
+            class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center mb-4 sm:mb-0">
+                <a href="{{ $dataAjuan->previousPageUrl() }}"
+                    class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+                <a href="{{ $dataAjuan->nextPageUrl() }}"
+                    class="inline-flex justify-center p-1 mr-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    Showing
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $dataAjuan->firstItem() }}</span>-
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $dataAjuan->lastItem() }}</span>
+                    of
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $dataAjuan->total() }}</span>
+                </span>
+
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{{ $dataAjuan->previousPageUrl() }}"
+                    class="inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                    <svg class="w-5 h-5 mr-1 -ml-1"" fill=" currentColor" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Previous
+                </a>
+                <a href="{{ $dataAjuan->nextPageUrl() }}"
+                    class="inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                    Next
+                    <svg class="w-5 h-5 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
     </div>
     </div>
 
 
-    <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-1 md:inset-0 h-modal sm:h-full"
+    {{-- <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-1 md:inset-0 h-modal sm:h-full"
         id="tambahSurat">
         <div class="relative w-full h-full max-w-2xl px-4 md:h-full">
             <!-- Modal content -->
@@ -428,8 +481,10 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 
+    <script type="module" src="{{ asset('assets/pdfjs-dist/build/pdf.mjs') }}"></script>
+    <script type="module" src="{{ asset('assets/pdfjs-dist/build/pdf.worker.mjs') }}"></script>
     @foreach ($dataAjuan as $m)
         <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-1 md:inset-0 h-modal sm:h-full"
             id="lihatBerkas{{ $m->id }}">
@@ -459,15 +514,96 @@
                         <h4 class="text-2xl font-bold dark:text-white">Berkas Surat Masuk</h4>
                         <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
 
-                        <iframe src="{{ asset('storage/' . $m->berkas) }}" style="width: 100%" height="500"
-                            id="myframe"></iframe>
+                        <div id="pdf-container-{{ $m->id }}">
+                            <iframe src="{{ asset('storage/' . $m->berkas) }}" style="width: 100%" height="500"
+                                id="myframe-{{ $m->id }}"></iframe>
+                        </div>
 
+                        {{-- <div id="pdf-container-{{ $m->id }}">
+                            <canvas id="pdf-viewer-{{ $m->id }}"></canvas>
+                        </div> --}}
+                        {{-- <iframe src="{{ asset('storage/' . $m->berkas) }}" style="width: 100%" height="500"
+                            id="myframe"></iframe> --}}
+                        <p id="position">Mouse position: 0 | 0</p>
                         <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700">
                     </div>
                 </div>
             </div>
         </div>
     @endforeach
+
+    <script>
+        @foreach ($dataAjuan as $m)
+            document.getElementById('pdf-container-{{ $m->id }}').addEventListener('click', function(event) {
+                const iframe = document.getElementById('myframe-{{ $m->id }}');
+                const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+
+                iframeDocument.addEventListener('click', function(event) {
+                    // Mengambil koordinat klik dalam iframe
+                    const x = event.clientX;
+                    const y = event.clientY;
+
+                    // Kirim koordinat ke server menggunakan AJAX
+                    // Implementasikan logika AJAX di sini
+
+                    // Untuk tujuan demonstrasi, log koordinat ke konsol
+                    console.log('Clicked coordinates (user perspective):', x, y);
+                });
+            });
+        @endforeach
+    </script>
+
+
+    {{-- <script type="module">
+        @foreach ($dataAjuan as $m)
+            // URL ke file PDF
+            const pdfUrl{{ $m->id }} = "{{ asset('storage/' . $m->berkas) }}";
+
+            // Container dan canvas viewer untuk setiap PDF
+            const pdfContainer{{ $m->id }} = document.getElementById('pdf-container-{{ $m->id }}');
+            const pdfViewer{{ $m->id }} = document.getElementById('pdf-viewer-{{ $m->id }}');
+            const pdfContext{{ $m->id }} = pdfViewer{{ $m->id }}.getContext('2d');
+
+            // Load PDF dan tampilkan halaman pertama
+            pdfjsLib.getDocument(pdfUrl{{ $m->id }}).promise.then(function(pdf) {
+                // Load halaman pertama
+                pdf.getPage(1).then(function(page) {
+                    // Setel ukuran canvas sesuai halaman PDF
+                    const viewport = page.getViewport({
+                        scale: 1
+                    });
+                    pdfViewer{{ $m->id }}.width = viewport.width;
+                    pdfViewer{{ $m->id }}.height = viewport.height;
+
+                    // Render halaman PDF pada canvas
+                    const renderContext = {
+                        canvasContext: pdfContext{{ $m->id }},
+                        viewport: viewport,
+                    };
+                    page.render(renderContext);
+                });
+            });
+
+            // Event listener ketika di klik
+            pdfViewer{{ $m->id }}.addEventListener('click', function(event) {
+                // Dapatkan koordinat klik relatif terhadap PDF viewer
+                const x = event.clientX;
+                const y = event.clientY;
+
+                console.log('Koordinat klik (dari perspektif pengguna):', 'X ' +
+                    x, 'Y ' + y);
+
+                // Anda dapat mengirim koordinat ini ke server menggunakan AJAX
+                // Contoh: sendCoordinatesToServer(x, y);
+            });
+        @endforeach
+    </script> --}}
+
+
+
+
+
+
 
 
 @endsection

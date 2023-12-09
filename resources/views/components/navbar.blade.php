@@ -13,8 +13,9 @@
                     </svg>
                 </button>
                 <a href="/" class="flex ml-2 md:mr-24">
-                    <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Admin
-                        Surat Menyurat</span>
+                    <img src="{{ asset('assets/img/LogoSmea.png') }}" class="h-9 mr-3" alt="FlowBite Logo">
+                    <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">SKTU
+                        SMEA</span>
                 </a>
 
             </div>

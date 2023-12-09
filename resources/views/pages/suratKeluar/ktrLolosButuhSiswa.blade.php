@@ -1,11 +1,39 @@
 @extends('layouts.app')
 @section('title', 'Surat Keluar Keterangan Lolos Butuh Siswa')
-@section('keterangan-llsbth-siswa', 'bg-gray-100 dark:bg-gray-700')
+@section('keterangan-llsbth-siswa', 'bg-gray-300 dark:bg-gray-700')
+@section('activeSuket', 'hidden')
+@section('activeSuketGuru', 'hidden')
+@section('activeSuketSiswa', '')
 
 @section('content')
     <div
         class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div class="w-full mb-1">
+            @if (session()->has('store'))
+                <div id="alert-3"
+                    class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+                    role="alert">
+                    <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <div class="ms-3 text-sm font-medium">
+                        {{ session('store') }}
+                    </div>
+                    <button type="button"
+                        class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
+                        data-dismiss-target="#alert-3" aria-label="Close">
+                        <span class="sr-only">Close</span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                        </svg>
+                    </button>
+                </div>
+            @endif
             <div class="mb-4">
                 <h1 class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Surat Keterangan Lolos Butuh
                     Siswa
@@ -13,12 +41,12 @@
             </div>
             <div class="sm:flex">
                 <div class="items-center hidden mb-3 sm:flex sm:divide-x sm:divide-gray-100 sm:mb-0 dark:divide-gray-700">
-                    <form class="lg:pr-3" action="{{ url('table') }}" method="GET">
+                    <form class="lg:pr-3" action="{{ url('surat-keluar-keterangan-lolos-butuh-siswa') }}" method="GET">
                         <label for="users-search" class="sr-only">Search</label>
                         <div class="flex items-center">
                             <input type="text" name="search"
                                 class="flex-1 bg-gray-50 w-[20rem] border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="Cari Menu">
+                                placeholder="Cari Surat">
                             <button type="submit"
                                 class="ml-2 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-primary-800">
                                 Cari
@@ -129,6 +157,12 @@
                                             class="inline-flex items-center px-2 py-2 text-sm font-medium text-center text-white rounded-md bg-yellow-700 hover:bg-yellow-800 focus:ring-4 focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
                                             <i class="fa-solid fa-eye"></i>
                                         </button>
+                                        @if ($m->status_persetujuan == 'diterima')
+                                            <button type="button" data-modal-toggle="lihatBerkasTTD{{ $m->id }}"
+                                                class="inline-flex items-center px-2 py-1 text-sm font-medium text-center text-white rounded-md bg-yellow-700 hover:bg-yellow-800 focus:ring-4 focus:ring-yellow-300 dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800">
+                                                <i class="fa-solid fa-eye mr-4"></i> Berkas TTD
+                                            </button>
+                                        @endif
                                         @if ($m->status_persetujuan == 'belum')
                                             <a href="{{ url('ajukan-ttd/' . $m->id) }}"
                                                 class="inline-flex items-center px-2 py-1 text-sm font-medium text-center text-white rounded-md bg-pink-700 hover:bg-pink-800 focus:ring-4 focus:ring-pink-300 dark:bg-pink-600 dark:hover:bg-pink-700 dark:focus:ring-pink-800">
@@ -156,6 +190,58 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <div
+            class="sticky bottom-0 right-0 items-center w-full p-4 bg-white border-t border-gray-200 sm:flex sm:justify-between dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex items-center mb-4 sm:mb-0">
+                <a href="{{ $suratKeluar->previousPageUrl() }}"
+                    class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+                <a href="{{ $suratKeluar->nextPageUrl() }}"
+                    class="inline-flex justify-center p-1 mr-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+                <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                    Showing
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $suratKeluar->firstItem() }}</span>-
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $suratKeluar->lastItem() }}</span>
+                    of
+                    <span class="font-semibold text-gray-900 dark:text-white">{{ $suratKeluar->total() }}</span>
+                </span>
+
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{{ $suratKeluar->previousPageUrl() }}"
+                    class="inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                    <svg class="w-5 h-5 mr-1 -ml-1"" fill=" currentColor" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                    Previous
+                </a>
+                <a href="{{ $suratKeluar->nextPageUrl() }}"
+                    class="inline-flex items-center justify-center flex-1 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                    Next
+                    <svg class="w-5 h-5 ml-1 -mr-1" fill="currentColor" viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd"></path>
+                    </svg>
+                </a>
             </div>
         </div>
     </div>
@@ -216,14 +302,15 @@
                                     class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                     min="{{ now()->format('Y-m-d') }}" value="{{ now()->format('Y-m-d') }}" required>
                             </div>
-                            <div class="col-span-6
+                            {{-- <div class="col-span-6
                                     sm:col-span-3">
                                 <label for="tipeSurat"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipe Surat</label>
-                                <input type="text" name="tipeSurat" id="tipeSurat"
-                                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    value="Lolos Butuh Siswa" required>
-                            </div>
+                              
+                            </div> --}}
+                            <input type="hidden" name="tipeSurat" id="tipeSurat"
+                                class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                value="Lolos Butuh Siswa">
                             <div class="col-span-6 sm:col-span-3">
                                 <label for="perihal"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Perihal</label>
@@ -414,23 +501,6 @@
                                 </div>
                                 <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
                             </div>
-
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="nama_kepala"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nama Kepala
-                                    Sekolah</label>
-                                <input type="text" name="nama_kepala" id="nama_kepala"
-                                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Nama Kepala Sekolah" required>
-                            </div>
-                            <div class="col-span-6 sm:col-span-3">
-                                <label for="nip_kepala"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nip Kepala
-                                    Sekolah</label>
-                                <input type="text" name="nip_kepala" id="nip_kepala"
-                                    class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                    placeholder="Nip Kepala Sekolah" required>
-                            </div>
                         </div>
                 </div>
                 <!-- Modal footer -->
@@ -470,7 +540,7 @@
                     </div>
                     <!-- Modal body -->
                     <div class="p-6 space-y-6">
-                        <h4 class="text-2xl font-bold dark:text-white">Berkas Surat Masuk</h4>
+                        <h4 class="text-2xl font-bold dark:text-white">Berkas Surat Keluar</h4>
                         <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
 
                         <iframe src="{{ asset('storage/' . $m->berkas) }}" style="width: 100%" height="500"
@@ -482,5 +552,45 @@
             </div>
         </div>
     @endforeach
+
+    @foreach ($suratKeluar as $m)
+        <div class="fixed left-0 right-0 z-50 items-center justify-center hidden overflow-x-hidden overflow-y-auto top-1 md:inset-0 h-modal sm:h-full"
+            id="lihatBerkasTTD{{ $m->id }}">
+            <div class="relative w-full h-full max-w-2xl px-4 md:h-full">
+                <!-- Modal content -->
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
+                    <!-- Modal header -->
+                    <div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
+                        <h3 class="text-xl font-semibold dark:text-white">
+                            Berkas
+                        </h3>
+
+                        <button type="button"
+                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            data-modal-toggle="lihatBerkasTTD{{ $m->id }}">
+                            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="sr-only">Close menu</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <div class="p-6 space-y-6">
+                        <h4 class="text-2xl font-bold dark:text-white">Berkas Surat Keluar Yang Sudah TTD</h4>
+                        <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
+
+                        <iframe src="{{ asset('storage/' . $m->berkasTTD) }}" style="width: 100%" height="500"
+                            id="myframe"></iframe>
+
+                        <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700">
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
 
 @endsection

@@ -18,6 +18,7 @@
     {{-- <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}"> --}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 
 <body class="bg-white dark:bg-gray-900">
@@ -55,9 +56,9 @@
             navbarDropdown.classList.toggle('hidden');
             sidebarBackdrop.classList.toggle('hidden');
         });
-        document.getElementById('print-window').addEventListener('click', function() {
-            window.print();
-        });
+        // document.getElementById('print-window').addEventListener('click', function() {
+        //     window.print();
+        // });
     </script>
 
     <script src="{{ asset('assets/js/flowbite.js') }}"></script>

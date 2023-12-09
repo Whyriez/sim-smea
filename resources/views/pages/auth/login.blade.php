@@ -25,8 +25,8 @@
                         <div class="mb-5">
                             <h1 class="text-4xl font-extrabold dark:text-white">
                                 Login</h1>
-                            <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-4">Silahkan Login
-                                Untuk Akses Surat</p>
+                            <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white mt-4">Selamat Datang
+                                Di SKTU(Surat Kelola Tata Usaha), SMK Negeri 1 Gorontalo</p>
                         </div>
                         <div>
                             <label for="email"
@@ -48,8 +48,8 @@
                             <button type="submit"
                                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
                         </div>
-                        <p class="text-sm pt-6 text-center">Belum Mempunyai Akun? <a href="javascript:void(0);"
-                                class="text-blue-600 hover:underline ml-1 whitespace-nowrap">Buat Akun Disini</a></p>
+                        {{-- <p class="text-sm pt-6 text-center">Belum Mempunyai Akun? <a href="javascript:void(0);"
+                                class="text-blue-600 hover:underline ml-1 whitespace-nowrap">Buat Akun Disini</a></p> --}}
                     </form>
                 </div>
                 <div class="lg:h-[400px] md:h-[300px] max-md:mt-10">
