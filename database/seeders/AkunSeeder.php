@@ -17,7 +17,6 @@ class AkunSeeder extends Seeder
             [
                 'name' => 'Admin Surat Masuk',
                 'email' => 'suratm@gmail.com',
-                'profile' => 'default.png',
                 'ttd' => 'default.png',
                 'role' => 0,
                 'password' => bcrypt('8520'),
@@ -25,7 +24,6 @@ class AkunSeeder extends Seeder
             [
                 'name' => 'Admin Surat Keluar',
                 'email' => 'suratk@gmail.com',
-                'profile' => 'default.jpg',
                 'ttd' => 'default.png',
                 'role' => 1,
                 'password' => bcrypt('8520'),
@@ -33,7 +31,6 @@ class AkunSeeder extends Seeder
             [
                 'name' => 'Kepala Sekolah',
                 'email' => 'kepala@gmail.com',
-                'profile' => 'default.jpg',
                 'ttd' => 'default.png',
                 'role' => 2,
                 'password' => bcrypt('8520'),

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('nip')->default('0000000');
-            $table->string('profile')->default('default.jpg');
             $table->string('ttd')->default('default.png');
             $table->integer('role');
             $table->timestamp('email_verified_at')->nullable();
