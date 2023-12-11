@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SuratKeluar;
+use App\Models\SuratMasuk;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +53,15 @@ class AuthController extends Controller
 
     public function changePassword()
     {
-        return view('pages.auth.changePassword');
+        $count = SuratKeluar::where('status_persetujuan', 'diajukan')->count();
+        $belumTTD = SuratKeluar::where('status_persetujuan', 'belum')->count();
+        $sudahTTD = SuratKeluar::where('status_persetujuan', 'diterima')->count();
+        $countSudah = SuratKeluar::where('status_persetujuan', 'diterima')->count();
+        $totMasuk = SuratMasuk::count();
+        return view('pages.auth.changePassword')->with([
+            'count' => $count, 'countSudah' => $countSudah, 'belumTTD' => $belumTTD, 'sudahTTD' => $sudahTTD,
+            'totMasuk' => $totMasuk
+        ]);
     }
 
     public function proseschangePassword(Request $request)
