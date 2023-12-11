@@ -22,23 +22,9 @@ class AuthController extends Controller
 
         if (Auth::attempt(['email' => $email, 'password' => $password])) {
             $request->session()->regenerate();
-            // $user = Auth::user();
             return redirect()->intended('dashboard');
-            // dd($user);
-            // if ($user->role == 0 || $user->role == 1 || $user->role == 2) {
-
-            // }else
-            // if ($user->role == 0) {
-            //     return redirect()->intended('dashboard');
-            // } else if ($user->role == 'user') {
-            //     return redirect()->intended('home');
-            // }
-            // return redirect()->intended('/');
         }
         return back()->withErrors('Email Dan Password Salah!!');
-        // return back()->withErrors([
-        //     'nim' => 'Maaf nim dan password anda salah',
-        // ])->onlyInput('nim');
     }
 
     public function proses_logout(Request $request)

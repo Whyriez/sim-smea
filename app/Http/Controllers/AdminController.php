@@ -94,9 +94,6 @@ class AdminController extends Controller
         $pathDisposisi = $directoryPath . $filename;
         Storage::put($pathDisposisi, $pdf->output());
 
-        // return $pdf->download('output.pdf');
-
-
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratMasuk)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
 
         $suratMasuk = new SuratMasuk;
@@ -239,7 +236,6 @@ class AdminController extends Controller
         $path = $directoryPath . $filename;
         Storage::put($path, $pdf->output());
 
-        // return $pdf->download('output.pdf');
 
         $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
 
@@ -314,7 +310,6 @@ class AdminController extends Controller
         $pathTTD = $directoryPath . $filenameTTD;
         Storage::put($path, $pdf->output());
         Storage::put($pathTTD, $pdfTTD->output());
-        // return $pdf->download('output.pdf');
 
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
