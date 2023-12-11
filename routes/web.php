@@ -20,6 +20,7 @@ Route::get('/', [AuthController::class, 'index'])->name('home');
 Route::post('/login', [AuthController::class, 'proses_login'])->name('login');
 Route::get('/logout', [AuthController::class, 'proses_logout'])->name('logout');
 
+
 Route::get('/lembar-disposisi/{id}', [AdminController::class, 'lembarDisposisi'])->name('lembar-disposisi/{id}');
 
 Route::group(['middleware' => 'auth'], function () {
@@ -105,4 +106,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/delete-surat/{id}', [AdminController::class, 'deleteSurat'])->name('delete-surat/{id}');
     Route::get('/delete-surat-no-ttd/{id}', [AdminController::class, 'deleteSuratNoTTD'])->name('delete-surat-no-ttd/{id}');
     Route::get('/delete-surat-masuk/{id}', [AdminController::class, 'deleteSuratMasuk'])->name('delete-surat-masuk/{id}');
+
+    Route::get('/change-password', [AuthController::class, 'changePassword'])->name('change-password');
+    Route::put('/proses-change-password', [AuthController::class, 'proseschangePassword'])->name('proses-change-password');
 });

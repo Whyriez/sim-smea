@@ -53,7 +53,7 @@
                     </form>
                 </div>
                 <div class="lg:h-[400px] md:h-[300px] max-md:mt-10">
-                    <img src="https://readymadeui.com/login-image.webp" class="w-full h-full object-cover"
+                    <img src="{{ asset('assets/img/login-image.webp') }}" class="w-full h-full object-cover"
                         alt="Dining Experience" />
                 </div>
             </div>

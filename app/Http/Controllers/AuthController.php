@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -45,5 +47,28 @@ class AuthController extends Controller
 
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function changePassword()
+    {
+        return view('pages.auth.changePassword');
+    }
+
+    public function proseschangePassword(Request $request)
+    {
+        $data = User::find(Auth::user()->id);
+
+        $password = $request->password;
+        $confirmPassword = $request->confirmPassword;
+
+        if ($password != $confirmPassword) {
+            Session::flash('notvalid', 'Password Dan Konfirmasi Password Tidak Sama');
+        }
+
+        $data->password = bcrypt($password);
+        $data->save();
+
+        Session::flash('valid', 'Berhasil Mengubah Password');
+        return redirect()->back();
     }
 }
