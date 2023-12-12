@@ -311,10 +311,14 @@ class AdminController extends Controller
         Storage::put($path, $pdf->output());
         Storage::put($pathTTD, $pdfTTD->output());
 
+        // return $pdf->download('output.pdf');
+
+        $date = Carbon::createFromFormat('Y-m-d', $request->tglSuratKeluar)->setTime(now()->hour, now()->minute, now()->second)->setTimezone('Asia/Makassar');
+
         $suratKeluar = new SuratKeluar;
         $suratKeluar->nomor_berkas = $request->nomor_berkas;
         $suratKeluar->alamat_penerima = $request->alamatPenerima;
-        $suratKeluar->tanggal = $request->tglSuratKeluar;
+        $suratKeluar->tanggal = $date;
         $suratKeluar->tipe_surat = $request->tipeSurat;
         $suratKeluar->perihal = $request->perihal;
         $suratKeluar->nomor_petunjuk = $request->nomor_petunjuk;

@@ -559,13 +559,17 @@
                 <th style="border-color: black" class="border">KETERANGAN</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody style="border-left: 1px solid #000;border-bottom: 1px solid #000;">
             @foreach ($nama_siswa as $index => $siswa)
                 <tr>
-                    <td style="border-color: black" class="border p-2">{{ $index + 1 }}</td>
-                    <td style="border-color: black" class="border p-2">{{ $siswa }}</td>
-                    <td style="border-color: black" class="border p-2">{{ $kelas_siswa[$index] }}</td>
-                    <td style="border-color: black" class="border p-2">{{ $keterangan[$index] }}</td>
+                    <td style="border-right: 1px solid #000; text-align: center; width:2rem">
+                        {{ $index + 1 . '.' }}</td>
+                    <td style="border-right: 1px solid #000; text-align: left; padding-left:5px; width:16rem">
+                        {{ $siswa }}</td>
+                    <td style="border-right: 1px solid #000; text-align: center;">
+                        {{ $kelas_siswa[$index] }}</td>
+                    <td style="border-right: 1px solid #000; text-align: center;">
+                        {{ $keterangan[$index] }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -583,13 +587,11 @@
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
                 $tglSurat = $convertdate->format('d F Y');
-
-                $kepalaSekolah = DB::select('SELECT * FROM users where role = 2')[0];
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p style="margin-bottom: 4rem">Kepala Sekolah</p>
-            <p>{{ $kepalaSekolah->name }}</p>
-            <p>NIP : {{ $kepalaSekolah->nip }}</p>
+            <p>{{ $nama_kepala }}</p>
+            <p>NIP : {{ $nip_kepala }}</p>
         </div>
     </div>
 </body>
