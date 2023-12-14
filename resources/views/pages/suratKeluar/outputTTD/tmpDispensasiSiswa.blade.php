@@ -574,9 +574,11 @@
             @endforeach
         </tbody>
     </table>
-
-    <p class="mt-2">
-        {{ $kegiatan }}
+    @php
+        $teks = preg_replace('/\*(.*?)\*/s', '<strong>$1</strong>', $kegiatan);
+    @endphp
+    <p style="text-align: justify" class="mt-2">
+        {!! $teks !!}
     </p>
     <p style="margin-bottom: 4rem;margin-top:1rem;">
         Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh rasa
@@ -587,7 +589,7 @@
             @php
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p style="margin-bottom: 4rem">Kepala Sekolah</p>

@@ -133,11 +133,11 @@
                                         class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 @yield('keterangan-llsbth-siswa')">Keterangan
                                         Lolos Butuh Siswa</a>
                                 </li>
-                                <li>
+                                {{-- <li>
                                     <a href="{{ url('surat-keluar-rekomendasi-siswa') }}"
                                         class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700">Rekomendasi
                                         Siswa</a>
-                                </li>
+                                </li> --}}
                                 <li>
                                     <a href="{{ url('surat-keluar-tugas-siswa') }}"
                                         class="flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700 @yield('tugas-siswa')">Tugas

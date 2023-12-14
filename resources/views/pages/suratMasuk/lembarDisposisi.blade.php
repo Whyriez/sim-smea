@@ -541,7 +541,7 @@
     <div class="mt-4">
         <div style="float: right">
             <p style="border-color: black; font-size:12px" class="font-bold text-right border-4 p-2 inline-block">
-                Form 02 - IK 4.2.4.a.
+                {{ $form }}
             </p>
         </div>
         <div style="clear: both;"></div>

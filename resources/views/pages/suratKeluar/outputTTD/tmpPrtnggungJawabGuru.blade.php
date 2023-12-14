@@ -507,7 +507,7 @@
         <div style="width: 15rem; height: 10;">
             @php
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p style="margin-bottom: 4rem">Yang membuat pernyataan</p>

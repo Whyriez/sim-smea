@@ -473,7 +473,7 @@
             @php
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
 
                 $kepalaSekolah = DB::select('SELECT * FROM users where role = 2')[0];
             @endphp

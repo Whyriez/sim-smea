@@ -549,7 +549,7 @@
     <div style="border-width: 0.5px; border-style: solid; border-color: black; margin-top: 2px" class="w-full"></div>
     <h1 style="text-decoration: underline;" class="text-center font-black underline mt-4">SURAT TUGAS</h1>
     <p class="text-center">Nomor : {{ $nomor_surat }}</p>
-    <p class="mt-8">Kepala SMK Negeri 1 Gorontalo memberikan tugas kepada :</p>
+    <p style="text-align: justify" class="mt-8">{{ $perihalAwal }}</p>
     <table class="border  border-collapse table-auto mx-auto w-full my-4">
         <thead>
             <tr>
@@ -559,19 +559,20 @@
                 <th style="border-color: black" class="border">KETERANGAN</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody style="border-left: 1px solid #000;border-bottom: 1px solid #000;">
             @foreach ($nama_siswa as $index => $siswa)
                 <tr>
-                    <td style="border-color: black" class="border p-2">{{ $index + 1 }}</td>
-                    <td style="border-color: black" class="border p-2">{{ $siswa }}</td>
-                    <td style="border-color: black" class="border p-2">{{ $kelas_siswa[$index] }}</td>
-                    <td style="border-color: black" class="border p-2">{{ $keterangan[$index] }}</td>
+                    <td style="border-right: 1px solid #000; text-align: center;">{{ $index + 1 . '.' }}</td>
+                    <td style="border-right: 1px solid #000; text-align: left; padding-left:5px; width:16rem">
+                        {{ $siswa }}</td>
+                    <td style="border-right: 1px solid #000; text-align: center;">{{ $kelas_siswa[$index] }}</td>
+                    <td style="border-right: 1px solid #000; text-align: center;">{{ $keterangan[$index] }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    <p class="mt-2">
+    <p style="text-align: justify" class="mt-2">
         {{ $kegiatan }}
     </p>
     <p style="margin-bottom: 4rem;margin-top:1rem;">
@@ -583,14 +584,12 @@
             @php
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
-
-                $kepalaSekolah = DB::select('SELECT * FROM users where role = 2')[0];
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p style="margin-bottom: 4rem">Kepala Sekolah</p>
-            <p>{{ $kepalaSekolah->name }}</p>
-            <p>NIP : {{ $kepalaSekolah->nip }}</p>
+            <p>{{ $nama_kepala }}</p>
+            <p>NIP : {{ $nip_kepala }}</p>
         </div>
     </div>
 </body>

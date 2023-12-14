@@ -696,7 +696,7 @@
             @php
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p>Kepala Sekolah</p>

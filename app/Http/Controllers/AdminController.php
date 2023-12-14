@@ -47,16 +47,16 @@ class AdminController extends Controller
 
     public function storeSuratMasuk(Request $request)
     {
-        // $request->validate(
-        //     [
-        //         'gambar' => 'required|mimes:jpeg,png,jpg|max:5000',
-        //     ],
-        //     [
-        //         'gambar.required' => 'File Tidak Boleh Kosong',
-        //         'gambar.max' => 'File Tidak Boleh Lebih Dari 2MB',
-        //         'gambar.mimes' => 'Format File Harus JPG,PNG',
-        //     ]
-        // );
+        $request->validate(
+            [
+                'berkas' => 'required|mimes:pdf|max:5000',
+            ],
+            [
+                'berkas.required' => 'File Tidak Boleh Kosong',
+                'berkas.max' => 'File Tidak Boleh Lebih Dari 2MB',
+                'berkas.mimes' => 'Format File Harus PDF',
+            ]
+        );
         if ($request->hasFile('berkas')) {
             $path = $request->file('berkas')->store('uploads/suratMasuk');
         } else {
@@ -65,6 +65,7 @@ class AdminController extends Controller
 
 
         $data = [
+            'form' => $request->form,
             'surat_dari' => $request->surat_dari,
             'tgl_surat' => $request->tglSuratMasuk,
             'nomor_surat' => $request->nomor_surat,
@@ -1151,6 +1152,7 @@ class AdminController extends Controller
 
         $data = [
             'nomor_surat' => $request->nomor_surat,
+            'perihalAwal' => $request->perihalAwal,
             'nama_siswa' => $request->nama_siswa,
             'kelas_siswa' => $request->kelas_siswa,
             'keterangan' => $request->keterangan,
@@ -1295,7 +1297,7 @@ class AdminController extends Controller
         }
 
         $data->delete();
-
+        Session::flash('delete', 'Surat Berhasil Dihapus!');
         return redirect()->back();
     }
 
@@ -1309,6 +1311,7 @@ class AdminController extends Controller
         }
 
         $data->delete();
+        Session::flash('delete', 'Surat Berhasil Dihapus!');
         return redirect()->back();
     }
 
@@ -1323,6 +1326,7 @@ class AdminController extends Controller
             Storage::delete($pathFileDisposisi);
         }
         $data->delete();
+        Session::flash('delete', 'Surat Berhasil Dihapus!');
         return redirect()->back();
     }
 }

@@ -575,8 +575,11 @@
         </tbody>
     </table>
 
+    @php
+        $teks = preg_replace('/\*(.*?)\*/s', '<strong>$1</strong>', $kegiatan);
+    @endphp
     <p style="text-align: justify" class="mt-2">
-        {{ $kegiatan }}
+        {!! $teks !!}
     </p>
     <p style="margin-bottom: 4rem;margin-top:1rem;">
         Demikian Dispensasi ini diberikan kepada yang bersangkutan untuk digunakan seperlunya.
@@ -586,7 +589,7 @@
             @php
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p style="margin-bottom: 4rem">Kepala Sekolah</p>

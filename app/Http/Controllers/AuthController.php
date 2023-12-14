@@ -57,14 +57,14 @@ class AuthController extends Controller
         $password = $request->password;
         $confirmPassword = $request->confirmPassword;
 
-        if ($password != $confirmPassword) {
+        if ($password == $confirmPassword) {
+            $data->password = bcrypt($password);
+            $data->save();
+            Session::flash('valid', 'Berhasil Mengubah Password');
+        } else {
             Session::flash('notvalid', 'Password Dan Konfirmasi Password Tidak Sama');
         }
 
-        $data->password = bcrypt($password);
-        $data->save();
-
-        Session::flash('valid', 'Berhasil Mengubah Password');
         return redirect()->back();
     }
 }

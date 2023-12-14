@@ -666,13 +666,16 @@
                     <th style="width: 14rem;border-color: black" class="border">KETERANGAN</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody style="border-left: 1px solid #000;border-bottom: 1px solid #000;">
                 @foreach ($uraian as $index => $ur)
                     <tr>
-                        <td style="border-color: black;padding:4px" class="border">{{ $index + 1 }}</td>
-                        <td style="border-color: black;padding:4px" class="border">{{ $ur }}</td>
-                        <td style="border-color: black;padding:4px" class="border">{{ $banyaknya[$index] }}</td>
-                        <td style="border-color: black;padding:4px" class="border">{{ $keterangan[$index] }}</td>
+                        <td style="border-right: 1px solid #000; text-align: center;">{{ $index + 1 . '.' }}</td>
+                        <td style="border-right: 1px solid #000; text-align: left; padding-left:5px;">
+                            {{ $ur }}</td>
+                        <td style="border-right: 1px solid #000; text-align: center;">
+                            {{ $banyaknya[$index] }}</td>
+                        <td style="border-right: 1px solid #000; text-align: left; padding-left:5px;">
+                            {{ $keterangan[$index] }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -684,7 +687,7 @@
             @php
                 use Illuminate\Support\Facades\DB;
                 $convertdate = \Carbon\Carbon::createFromFormat('Y-m-d', $tglSuratKeluar);
-                $tglSurat = $convertdate->format('d F Y');
+                $tglSurat = $convertdate->isoFormat('D MMMM YYYY');
             @endphp
             <p>Gorontalo, {{ $tglSurat }}</p>
             <p>Kepala Sekolah</p>
