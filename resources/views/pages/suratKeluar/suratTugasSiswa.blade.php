@@ -357,7 +357,7 @@
                             </div>
                         </div>
                         <hr class="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700">
-                        <h4 class="text-2xl font-bold dark:text-white">Surat Dispensasi</h4>
+                        <h4 class="text-2xl font-bold dark:text-white">Surat Tugas Siswa</h4>
                         <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
                         <div class="grid grid-cols-6 gap-6">
                             <div class="col-span-6 sm:col-span-3">

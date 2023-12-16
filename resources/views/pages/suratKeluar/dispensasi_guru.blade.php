@@ -284,7 +284,7 @@
                 <!-- Modal header -->
                 <div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
                     <h3 class="text-xl font-semibold dark:text-white">
-                        Tambah Surat Dispensasi
+                        Tambah Surat Dispensasi Guru
                     </h3>
 
                     <button type="button"
@@ -363,7 +363,7 @@
                             </div>
                         </div>
                         <hr class="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700">
-                        <h4 class="text-2xl font-bold dark:text-white">Surat Dispensasi</h4>
+                        <h4 class="text-2xl font-bold dark:text-white">Surat Dispensasi Guru</h4>
                         <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
                         <div class="grid grid-cols-6 gap-6">
                             <div class="col-span-6 sm:col-span-3">
